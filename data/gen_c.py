@@ -6,7 +6,7 @@ import re
 import sys
 
 from bs4 import BeautifulSoup
-from pytz import timezone, utc
+from pytz import utc
 
 def to_posix_time(t):
     delta = t.astimezone(utc) - datetime.datetime(1970, 1, 1, tzinfo=utc)
@@ -33,7 +33,7 @@ struct uni_year
 ''')
     print('struct uni_year year_records[] = {')
 
-    tz = timezone('Europe/London')
+    tz = utc
     
     n_years = 0
     for row in soup('tr'):

@@ -25,10 +25,11 @@ struct uni_term_date
 /* seconds in a day */
 #define DAY (24*60*60)
 
-struct uni_term_date* uni_term_make(struct tm* timeval, struct uni_term_date* output)
+struct uni_term_date* uni_term_make(const struct tm* timeval, struct uni_term_date* output)
 {
     /* Convert time to POSIX timestamp. */
-    time_t timestamp = mktime(timeval);
+    struct tm tmp_tm = *timeval;
+    time_t timestamp = mktime(&tmp_tm);
 
     /* What are the earliest and latest times we know about? */
     time_t ken_start = year_records[0].mich_start, ken_end = year_records[N_YEAR_RECORDS-1].easter_end;
@@ -88,16 +89,26 @@ struct uni_term_date* uni_term_make(struct tm* timeval, struct uni_term_date* ou
 
     /* Week "1" starts on the first Thursday. */
     struct tm wk1_start;
-    time_t wk1_start_timestamp;
     localtime_r(&start, &wk1_start);
     while(wk1_start.tm_wday != 4) {
         wk1_start.tm_mday++;
-        wk1_start_timestamp = mktime(&wk1_start); // mktime normalises the tm structure
+        wk1_start.tm_isdst = -1;
+        mktime(&wk1_start); // mktime normalises the tm structure
     }
 
-    time_t seconds_into_term = timestamp - wk1_start_timestamp;
-    output->week = seconds_into_term / (7*DAY);
-    output->day = (seconds_into_term / DAY) % 7;
+    /* We can't just use difftime because of daylight savings. Grr. This is
+     * inefficient but correct. It will iterate at most 60 times. */
+    tmp_tm = wk1_start;
+    int days_into_term = 0;
+    while((tmp_tm.tm_year != timeval->tm_year) || (tmp_tm.tm_yday != timeval->tm_yday)) {
+        tmp_tm.tm_mday++;
+        tmp_tm.tm_isdst = -1;
+        days_into_term++;
+        mktime(&tmp_tm);
+    }
+
+    output->week = days_into_term / 7;
+    output->day = days_into_term % 7;
 
     return output;
 }
