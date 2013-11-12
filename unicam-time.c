@@ -20,7 +20,6 @@ struct uni_term_date
     enum uni_term_name  name;
     int                 week;   /* [-1, 8] weeks from start of week 1 (-1 and 8 are rare) */
     int                 day;    /* [0, 7] days from start of week */
-    int                 hour, min, sec;
 };
 
 /* seconds in a day */
@@ -62,9 +61,6 @@ struct uni_term_date* uni_term_make(struct tm* timeval, struct uni_term_date* ou
 
     /* Record the academic year, hour, minute and second */
     output->academic_year = year_p->start_year;
-    output->hour = timeval->tm_hour;
-    output->min = timeval->tm_min;
-    output->sec = timeval->tm_sec;
 
     /* The start of 'week 0' */
     time_t start;
@@ -133,8 +129,8 @@ void uni_term_print(struct uni_term_date* term_p)
         return;
     }
 
-    printf("%02i:%02i:%02i on day %i of %s week %i academic year %i-%i\n",
-            term_p->hour, term_p->min, term_p->sec, term_p->day+1,
+    printf("day %i of %s week %i academic year %i-%i\n",
+            term_p->day+1,
             uni_term_name_to_string(term_p->name),
             term_p->week+1,
             term_p->academic_year, term_p->academic_year+1);
