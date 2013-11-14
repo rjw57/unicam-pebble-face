@@ -1,0 +1,17 @@
+{
+  "uuid": "4d891c07-c0cd-45c6-a83b-7881c172f7c3",
+  "shortName": "ucam-face",
+  "longName": "ucam-face",
+  "companyName": "MakeAwesomeHappen",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
