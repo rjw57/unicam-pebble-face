@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #ifdef NON_PEBBLE
 #include <time.h>
+#include <stdio.h>
 #else
 #include <pebble.h>
-#include "mktime.h"
 #endif
 
+#include "mktime.h"
 #include "term-dates.h"
 
 /* seconds in a day */
@@ -77,24 +78,18 @@ struct uni_term_date* uni_term_make(const struct tm* timeval, struct uni_term_da
 
     /* Week "1" starts on the first Thursday. */
     struct tm wk1_start;
-    wk1_start = *localtime(&start);
-    while(wk1_start.tm_wday != 4) {
-        wk1_start.tm_mday++;
-        wk1_start.tm_isdst = -1;
-        pebble_mktime(&wk1_start); // mktime normalises the tm structure
+    time_t wk1_start_timestamp = start;
+    wk1_start = *localtime(&wk1_start_timestamp);
+
+    if(wk1_start.tm_wday < 4) {
+        wk1_start_timestamp += (4 - wk1_start.tm_wday) * DAY;
+        wk1_start = *localtime(&wk1_start_timestamp);
+    } else if(wk1_start.tm_wday > 4) {
+        wk1_start_timestamp += ((4+7) - wk1_start.tm_wday) * DAY;
+        wk1_start = *localtime(&wk1_start_timestamp);
     }
 
-    /* We can't just use difftime because of daylight savings. Grr. This is
-     * inefficient but correct. It will iterate at most 60 times. */
-    tmp_tm = wk1_start;
-    int days_into_term = 0;
-    while((tmp_tm.tm_year != timeval->tm_year) || (tmp_tm.tm_yday != timeval->tm_yday)) {
-        tmp_tm.tm_mday++;
-        tmp_tm.tm_isdst = -1;
-        days_into_term++;
-        pebble_mktime(&tmp_tm);
-    }
-
+    int days_into_term = (timestamp - wk1_start_timestamp) / DAY;
     output->week = days_into_term / 7;
     output->day = days_into_term % 7;
 

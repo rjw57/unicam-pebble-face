@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     }
 
     printf("yr %i, day %i, week %i, %s\n",
-            date.academic_year, date.day+1, date.week,
+            date.academic_year, date.day+1, date.week+1,
             uni_term_name_to_string(date.name));
 
     return EXIT_SUCCESS;
