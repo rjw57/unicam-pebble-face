@@ -146,20 +146,3 @@ void uni_term_print(struct uni_term_date* term_p)
             term_p->week+1,
             term_p->academic_year, term_p->academic_year+1);
 }
-
-int main(int argc, char** argv)
-{
-    struct tm               now_tm;
-    time_t                  now;
-    struct uni_term_date    term;
-
-    /* Get current time */
-    time(&now);
-    localtime_r(&now, &now_tm);
-
-    if(NULL != uni_term_make(&now_tm, &term)) {
-        uni_term_print(&term);
-    }
-
-    return EXIT_SUCCESS;
-}
