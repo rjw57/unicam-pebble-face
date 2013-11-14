@@ -107,15 +107,15 @@ const char* uni_term_name_to_string(enum uni_term_name name)
         case TERM_NAME_MICHAELMAS:
             return "Michaelmas";
         case TERM_NAME_CHRISTMAS_VACATION:
-            return "Christmas vacation";
+            return "Christmas vac.";
         case TERM_NAME_LENT:
             return "Lent";
         case TERM_NAME_EASTER_VACATION:
-            return "Easter vacation";
+            return "Easter vac.";
         case TERM_NAME_EASTER:
             return "Easter";
         case TERM_NAME_LONG_VACATION:
-            return "Long vacation";
+            return "Long vac.";
     };
 
     return "???";
