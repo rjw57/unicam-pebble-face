@@ -1,8 +1,12 @@
 #include "unicam-time.h"
 
-#include <time.h>
-#include <stdio.h>
 #include <stdlib.h>
+#ifdef NON_PEBBLE
+#include <time.h>
+#else
+#include <pebble.h>
+#include "mktime.h"
+#endif
 
 #include "term-dates.h"
 
@@ -73,7 +77,7 @@ struct uni_term_date* uni_term_make(const struct tm* timeval, struct uni_term_da
 
     /* Week "1" starts on the first Thursday. */
     struct tm wk1_start;
-    localtime_r(&start, &wk1_start);
+    wk1_start = *localtime(&start);
     while(wk1_start.tm_wday != 4) {
         wk1_start.tm_mday++;
         wk1_start.tm_isdst = -1;
@@ -115,18 +119,4 @@ const char* uni_term_name_to_string(enum uni_term_name name)
     };
 
     return "???";
-}
-
-void uni_term_print(struct uni_term_date* term_p)
-{
-    if(NULL == term_p) {
-        printf("NULL term\n");
-        return;
-    }
-
-    printf("day %i of %s week %i academic year %i-%i\n",
-            term_p->day+1,
-            uni_term_name_to_string(term_p->name),
-            term_p->week+1,
-            term_p->academic_year, term_p->academic_year+1);
 }

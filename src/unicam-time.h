@@ -1,7 +1,11 @@
 #ifndef UNICAM_TIME_H__
 #define UNICAM_TIME_H__
 
+#ifdef NON_PEBBLE
 #include <time.h>
+#else
+#include <pebble.h>
+#endif
 
 enum uni_term_name
 {

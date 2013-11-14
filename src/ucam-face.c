@@ -1,11 +1,21 @@
 #include <pebble.h>
 
+#include "unicam-time.h"
+
 static Window *window;
 static TextLayer *text_layer;
 
 // Called once per minute
 static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
     static char time_text[] = "00:00"; // Needs to be static because it's used by the system later.
+
+    // Get current date in Uni format
+    struct uni_term_date term_date;
+    if(NULL == uni_term_make(tick_time, &term_date))
+        return;
+
+    // TODO: update UI
+
     strftime(time_text, sizeof(time_text), "%H:%M", tick_time);
     text_layer_set_text(text_layer, time_text);
 }
