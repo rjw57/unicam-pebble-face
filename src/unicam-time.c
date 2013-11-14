@@ -1,26 +1,10 @@
+#include "unicam-time.h"
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "term-dates.h"
-
-enum uni_term_name
-{
-    TERM_NAME_MICHAELMAS,
-    TERM_NAME_CHRISTMAS_VACATION,
-    TERM_NAME_LENT,
-    TERM_NAME_EASTER_VACATION,
-    TERM_NAME_EASTER,
-    TERM_NAME_LONG_VACATION,
-};
-
-struct uni_term_date
-{
-    int                 academic_year;  /* N.B. year which Michaelmas falls in */
-    enum uni_term_name  name;
-    int                 week;   /* [-1, 8] weeks from start of week 1 (-1 and 8 are rare) */
-    int                 day;    /* [0, 7] days from start of week */
-};
 
 /* seconds in a day */
 #define DAY (24*60*60)
