@@ -3,6 +3,13 @@
 static Window *window;
 static TextLayer *text_layer;
 
+// Called once per minute
+static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
+  static char time_text[] = "00:00"; // Needs to be static because it's used by the system later.
+  strftime(time_text, sizeof(time_text), "%H:%M", tick_time);
+  text_layer_set_text(text_layer, time_text);
+}
+
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -12,6 +19,13 @@ static void window_load(Window *window) {
   text_layer_set_text_color(text_layer, GColorWhite);
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
   text_layer_set_background_color(text_layer, GColorClear);
+
+  // Ensures time is displayed immediately (will break if NULL tick event accessed).
+  // (This is why it's a good idea to have a separate routine to do the update itself.)
+  time_t now = time(NULL);
+  struct tm *current_time = localtime(&now);
+  handle_minute_tick(current_time, MINUTE_UNIT);
+  tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
 }
