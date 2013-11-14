@@ -9,4 +9,4 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=gnu99 -pedantic")
 
 add_definitions(-DNON_PEBBLE)
-add_executable(unicam-time src/unicam-time.c test/ucam-time-test.c)
+add_executable(unicam-time src/unicam-time.c src/mktime.c test/ucam-time-test.c)

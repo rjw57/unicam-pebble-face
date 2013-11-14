@@ -6,7 +6,12 @@
   This code is released to the public domain.
 */
 
+#ifdef NON_PEBBLE
+#include <string.h>
+#include <time.h>
+#else
 #include <pebble.h>
+#endif
 
 /* scalar date routines    --    public domain by Ray Gardner
 ** These will work over the range 1-01-01 thru 14699-12-31
@@ -62,7 +67,7 @@ static void scalar_to_ymd (long scalar,
   return;
 }
 
-time_t mktime (struct tm *timeptr) {
+time_t pebble_mktime (struct tm *timeptr) {
   time_t tt;
 
   if ((timeptr->tm_year < 70) || (timeptr->tm_year > 120)) {

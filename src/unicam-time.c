@@ -17,7 +17,7 @@ struct uni_term_date* uni_term_make(const struct tm* timeval, struct uni_term_da
 {
     /* Convert time to POSIX timestamp. */
     struct tm tmp_tm = *timeval;
-    time_t timestamp = mktime(&tmp_tm);
+    time_t timestamp = pebble_mktime(&tmp_tm);
 
     /* What are the earliest and latest times we know about? */
     time_t ken_start = year_records[0].mich_start, ken_end = year_records[N_YEAR_RECORDS-1].easter_end;
@@ -81,7 +81,7 @@ struct uni_term_date* uni_term_make(const struct tm* timeval, struct uni_term_da
     while(wk1_start.tm_wday != 4) {
         wk1_start.tm_mday++;
         wk1_start.tm_isdst = -1;
-        mktime(&wk1_start); // mktime normalises the tm structure
+        pebble_mktime(&wk1_start); // mktime normalises the tm structure
     }
 
     /* We can't just use difftime because of daylight savings. Grr. This is
@@ -92,7 +92,7 @@ struct uni_term_date* uni_term_make(const struct tm* timeval, struct uni_term_da
         tmp_tm.tm_mday++;
         tmp_tm.tm_isdst = -1;
         days_into_term++;
-        mktime(&tmp_tm);
+        pebble_mktime(&tmp_tm);
     }
 
     output->week = days_into_term / 7;
