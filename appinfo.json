@@ -1,16 +1,14 @@
 {
   "uuid": "4d891c07-c0cd-45c6-a83b-7881c172f7c3",
-  "shortName": "ucam-face",
-  "longName": "ucam-face",
-  "companyName": "MakeAwesomeHappen",
+  "shortName": "University of Cambridge",
+  "longName": "Cambridge Terms",
+  "companyName": "Rich Wareham",
   "versionCode": 1,
-  "versionLabel": "1.0.0",
+  "versionLabel": "0.1.0",
   "watchapp": {
-    "watchface": false
+    "watchface": true
   },
-  "appKeys": {
-    "dummy": 0
-  },
+  "appKeys": { },
   "resources": {
     "media": []
   }
