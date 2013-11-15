@@ -53,6 +53,7 @@ TextLayer* create_label(GRect frame)
     text_layer_set_text_color(rv, GColorWhite);
     text_layer_set_text_alignment(rv, GTextAlignmentCenter);
     text_layer_set_background_color(rv, GColorClear);
+    text_layer_set_font(rv, fonts_get_system_font(FONT_KEY_GOTHIC_24));
     return rv;
 }
 
@@ -60,16 +61,18 @@ static void window_load(Window *window) {
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_bounds(window_layer);
 
-    term_text_layer = create_label((GRect) { .origin = { 0, 123 }, .size = { bounds.size.w, 20 } });
+    const int text_height = 24;
+
+    term_text_layer = create_label((GRect) { .origin = { 0, bounds.size.h-2*text_height }, .size = { bounds.size.w, text_height } });
     text_layer_set_text(term_text_layer, placeholder_text);
 
-    date_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1, 145 }, .size = { bounds.size.w>>1, 20 } });
+    date_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1, bounds.size.h-text_height }, .size = { bounds.size.w>>1, text_height } });
     text_layer_set_text(date_text_layer, placeholder_text);
 
-    day_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1, 96 }, .size = { bounds.size.w>>1, 20 } });
+    day_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1, 96 }, .size = { bounds.size.w>>1, text_height } });
     text_layer_set_text(day_text_layer, placeholder_text);
 
-    week_text_layer = create_label((GRect) { .origin = { 0, 145 }, .size = { bounds.size.w>>1, 20 } });
+    week_text_layer = create_label((GRect) { .origin = { 0, bounds.size.h-text_height }, .size = { bounds.size.w>>1, text_height } });
     text_layer_set_text(week_text_layer, placeholder_text);
 
     // Ensures time is displayed immediately (will break if NULL tick event accessed).
