@@ -1,7 +1,7 @@
 #include <pebble.h>
 
 #include "unicam-time.h"
-#include "toggle-bitmap-layer.h"
+#include "led-bar-layer.h"
 
 static Window *window;
 static TextLayer *term_text_layer, *week_text_layer;
@@ -13,7 +13,7 @@ static char placeholder_text[] = "PLACEHOLDER";
 
 static char week_text[TEXT_LEN], date_text[TEXT_LEN], day_text[TEXT_LEN];
 
-static ToggleBitmapLayer* pulse_layer;
+static LedBarLayer *hours_led_bar_layer, *minutes_tens_led_bar_layer, *minutes_units_led_bar_layer;
 
 // RESOURCES
 GBitmap *filled_dot_bitmap, *empty_dot_bitmap;
@@ -48,7 +48,10 @@ static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
     // Term name: e.g. Michaelmas
     text_layer_set_text(term_text_layer, uni_term_name_to_string(term_date.name));
 
-    toggle_bitmap_layer_toggle_state(pulse_layer);
+    // Time itself
+    led_bar_layer_set_value(hours_led_bar_layer, time_copy.tm_hour % 12);
+    led_bar_layer_set_value(minutes_tens_led_bar_layer, time_copy.tm_min / 10);
+    led_bar_layer_set_value(minutes_units_led_bar_layer, time_copy.tm_min % 10);
 }
 
 // Convenience function to initialise a label and set the right defaults.
@@ -59,6 +62,17 @@ TextLayer* create_label(GRect frame)
     text_layer_set_text_alignment(rv, GTextAlignmentCenter);
     text_layer_set_background_color(rv, GColorClear);
     text_layer_set_font(rv, fonts_get_system_font(FONT_KEY_GOTHIC_24));
+    return rv;
+}
+
+// Convenience function to initialise a LED bar and set the right defaults.
+LedBarLayer* create_led_bar(GRect frame)
+{
+    LedBarLayer* rv = led_bar_layer_create(frame);
+    led_bar_layer_set_on_bitmap(rv, filled_dot_bitmap);
+    led_bar_layer_set_off_bitmap(rv, empty_dot_bitmap);
+    led_bar_layer_set_gutter_size(rv, (GSize) { 2, 2 });
+    led_bar_layer_set_led_size(rv, (GSize) { 21, 21 });
     return rv;
 }
 
@@ -80,23 +94,33 @@ static void window_load(Window *window) {
     week_text_layer = create_label((GRect) { .origin = { 0, bounds.size.h-text_height }, .size = { bounds.size.w>>1, text_height } });
     text_layer_set_text(week_text_layer, placeholder_text);
 
-    pulse_layer = toggle_bitmap_layer_create((GRect) { .origin = { 2, 2 }, .size = { 25, 25 } });
-    toggle_bitmap_layer_set_on_bitmap(pulse_layer, filled_dot_bitmap);
-    toggle_bitmap_layer_set_off_bitmap(pulse_layer, empty_dot_bitmap);
+    hours_led_bar_layer = create_led_bar((GRect) { .origin = { 2, 2 }, .size = { bounds.size.w-4, 21*2 + 2 } });
+    led_bar_layer_set_geometry(hours_led_bar_layer, 2, 6);
+    led_bar_layer_set_max_value(hours_led_bar_layer, 12);
+
+    minutes_tens_led_bar_layer = create_led_bar((GRect) { .origin = { 2, 2 + 21*2+2 + 2 }, .size = { bounds.size.w-4, 21 } });
+    led_bar_layer_set_geometry(minutes_tens_led_bar_layer, 2, 6);
+    led_bar_layer_set_max_value(minutes_tens_led_bar_layer, 5);
+
+    minutes_units_led_bar_layer = create_led_bar((GRect) { .origin = { 2, 2 + 21*2+2 + 2 + 21 + 2 }, .size = { bounds.size.w-4, 21*2 + 2 } });
+    led_bar_layer_set_geometry(minutes_units_led_bar_layer, 2, 6);
+    led_bar_layer_set_max_value(minutes_units_led_bar_layer, 9);
 
     // Ensures time is displayed immediately (will break if NULL tick event accessed).
     // (This is why it's a good idea to have a separate routine to do the update itself.)
     time_t now = time(NULL);
     struct tm *current_time = localtime(&now);
-    handle_minute_tick(current_time, SECOND_UNIT);
-    tick_timer_service_subscribe(SECOND_UNIT, &handle_minute_tick);
+    handle_minute_tick(current_time, MINUTE_UNIT);
+    tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
 
     layer_add_child(window_layer, text_layer_get_layer(term_text_layer));
     layer_add_child(window_layer, text_layer_get_layer(date_text_layer));
     layer_add_child(window_layer, text_layer_get_layer(day_text_layer));
     layer_add_child(window_layer, text_layer_get_layer(week_text_layer));
 
-    layer_add_child(window_layer, toggle_bitmap_layer_get_layer(pulse_layer));
+    layer_add_child(window_layer, led_bar_layer_get_layer(hours_led_bar_layer));
+    layer_add_child(window_layer, led_bar_layer_get_layer(minutes_tens_led_bar_layer));
+    layer_add_child(window_layer, led_bar_layer_get_layer(minutes_units_led_bar_layer));
 }
 
 static void window_unload(Window *window) {
@@ -105,7 +129,9 @@ static void window_unload(Window *window) {
     text_layer_destroy(day_text_layer);
     text_layer_destroy(week_text_layer);
 
-    toggle_bitmap_layer_destroy(pulse_layer);
+    led_bar_layer_destroy(hours_led_bar_layer);
+    led_bar_layer_destroy(minutes_tens_led_bar_layer);
+    led_bar_layer_destroy(minutes_units_led_bar_layer);
 }
 
 static void init(void) {
