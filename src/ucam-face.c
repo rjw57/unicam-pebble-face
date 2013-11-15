@@ -19,14 +19,18 @@ GBitmap *filled_dot_bitmap, *empty_dot_bitmap;
 static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
     static char tmp_str[TEXT_LEN];
 
+    // Need this because it would appear tick_time is the raw pointer returned
+    // from localtime() which is overwritten by uni_term_make().
+    struct tm time_copy = *tick_time;
+
     // Get current date in Uni format
     struct uni_term_date term_date;
-    if(NULL == uni_term_make(tick_time, &term_date))
+    if(NULL == uni_term_make(&time_copy, &term_date))
         return;
 
     // Date: e.g. 3 Nov
-    strftime(tmp_str, sizeof(tmp_str), "%h", tick_time);
-    snprintf(date_text, sizeof(date_text), "%li %s", tick_time->tm_mday, tmp_str);
+    strftime(tmp_str, sizeof(tmp_str), "%h", &time_copy);
+    snprintf(date_text, sizeof(date_text), "%li %s", time_copy.tm_mday, tmp_str);
     text_layer_set_text(date_text_layer, date_text);
 
     // Week: e.g. Wk 2
@@ -34,7 +38,7 @@ static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
     text_layer_set_text(week_text_layer, week_text);
 
     // Day: e.g. Fri (6)
-    strftime(tmp_str, sizeof(tmp_str), "%a", tick_time);
+    strftime(tmp_str, sizeof(tmp_str), "%a", &time_copy);
     snprintf(day_text, sizeof(day_text), "%s (%i)", tmp_str, term_date.day+1);
     text_layer_set_text(day_text_layer, day_text);
 
