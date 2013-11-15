@@ -12,6 +12,9 @@ static char placeholder_text[] = "PLACEHOLDER";
 
 static char week_text[TEXT_LEN], date_text[TEXT_LEN], day_text[TEXT_LEN];
 
+// RESOURCES
+GBitmap *filled_dot_bitmap, *empty_dot_bitmap;
+
 // Called once per minute
 static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
     static char tmp_str[TEXT_LEN];
@@ -86,6 +89,10 @@ static void window_unload(Window *window) {
 }
 
 static void init(void) {
+    // Load resources
+    filled_dot_bitmap = gbitmap_create_with_resource(RESOURCE_ID_FILLED_DOT);
+    empty_dot_bitmap = gbitmap_create_with_resource(RESOURCE_ID_EMPTY_DOT);
+
     window = window_create();
     window_set_background_color(window, GColorBlack);
     window_set_window_handlers(window, (WindowHandlers) {
@@ -97,6 +104,10 @@ static void init(void) {
 
 static void deinit(void) {
     window_destroy(window);
+
+    // Free resources
+    gbitmap_destroy(filled_dot_bitmap);
+    gbitmap_destroy(empty_dot_bitmap);
 }
 
 int main(void) {
