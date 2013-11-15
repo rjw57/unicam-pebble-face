@@ -29,6 +29,10 @@ void toggle_bitmap_layer_destroy(ToggleBitmapLayer* toggle_bitmap_layer);
  * layers used for its implementation. */
 Layer* toggle_bitmap_layer_get_layer(const ToggleBitmapLayer* toggle_bitmap_layer);
 
+/* Gets the BitmapLayer used to display the bitmap. This is useful if you want
+ * to adjust background colours, alignment, etc. */
+BitmapLayer* toggle_bitmap_layer_get_bitmap_layer(const ToggleBitmapLayer* toggle_bitmap_layer);
+
 /* Toggle the state of the layer. I.e. on -> off or off -> on. */
 void toggle_bitmap_layer_toggle_state(ToggleBitmapLayer* toggle_bitmap_layer);
 

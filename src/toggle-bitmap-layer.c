@@ -2,74 +2,63 @@
 
 #include <pebble.h>
 
-typedef struct {
+struct ToggleBitmapLayer_ {
+    BitmapLayer             *base_layer;
     ToggleBitmapLayerState   state;
     const GBitmap           *on_bitmap, *off_bitmap;
-} ToggleBitmapLayerPrivate;
+};
 
-inline static ToggleBitmapLayerPrivate* priv(ToggleBitmapLayer* l) {
-    return (ToggleBitmapLayerPrivate*) layer_get_data(toggle_bitmap_layer_get_layer(l));
-}
-
-/* const version of priv() */
-inline static const ToggleBitmapLayerPrivate* priv_c(const ToggleBitmapLayer* l) {
-    return (const ToggleBitmapLayerPrivate*) layer_get_data(toggle_bitmap_layer_get_layer(l));
-}
-
-static void toggle_bitmap_layer_update_proc(Layer* layer, GContext* ctx)
+inline void toggle_bitmap_layer_reset_bitmap_(ToggleBitmapLayer* toggle_bitmap_layer)
 {
-    /* Extract private data */
-    ToggleBitmapLayerPrivate* p = priv((ToggleBitmapLayer*) layer);
-
-    /* Which bitmap should we draw? */
-    const GBitmap* bm = NULL;
-    switch(p->state) {
+    switch(toggle_bitmap_layer_get_state(toggle_bitmap_layer)) {
         case TOGGLE_BITMAP_LAYER_STATE_ON:
-            bm = p->on_bitmap;
+            bitmap_layer_set_bitmap(
+                    toggle_bitmap_layer_get_bitmap_layer(toggle_bitmap_layer),
+                    toggle_bitmap_layer_get_on_bitmap(toggle_bitmap_layer));
             break;
         case TOGGLE_BITMAP_LAYER_STATE_OFF:
-            bm = p->off_bitmap;
+            bitmap_layer_set_bitmap(
+                    toggle_bitmap_layer_get_bitmap_layer(toggle_bitmap_layer),
+                    toggle_bitmap_layer_get_off_bitmap(toggle_bitmap_layer));
             break;
     };
-
-    /* If no bitmap, early-out. */
-    if(NULL == bm)
-        return;
-
-    /* Draw the bitmap within our bounds. */
-    graphics_draw_bitmap_in_rect(ctx, bm, layer_get_bounds(layer));
 }
 
 ToggleBitmapLayer* toggle_bitmap_layer_create(GRect frame)
 {
-    /* Create a layer with extra storage */
-    ToggleBitmapLayer* tbl = (ToggleBitmapLayer*) layer_create_with_data(frame, sizeof(ToggleBitmapLayerPrivate));
+    /* Create ToggleBitmapLayer structure. */
+    ToggleBitmapLayer* tbl = (ToggleBitmapLayer*) malloc(sizeof(ToggleBitmapLayer));
     if(tbl == NULL)
         return NULL;
 
     /* Initialise struct */
-    *priv(tbl) = (ToggleBitmapLayerPrivate) {
+    *tbl = (ToggleBitmapLayer) {
+        .base_layer = bitmap_layer_create(frame),
         .state      = TOGGLE_BITMAP_LAYER_STATE_ON,
         .on_bitmap  = NULL,
         .off_bitmap = NULL,
     };
 
-    /* Set update proc */
-    layer_set_update_proc((Layer*) tbl, toggle_bitmap_layer_update_proc);
-
-    return (ToggleBitmapLayer*) tbl;
+    return tbl;
 }
 
 void toggle_bitmap_layer_destroy(ToggleBitmapLayer* toggle_bitmap_layer)
 {
-    /* Pretty simple, no? */
-    layer_destroy(toggle_bitmap_layer_get_layer(toggle_bitmap_layer));
+    if(NULL == toggle_bitmap_layer)
+        return;
+
+    bitmap_layer_destroy(toggle_bitmap_layer->base_layer);
+    free(toggle_bitmap_layer);
 }
 
 Layer* toggle_bitmap_layer_get_layer(const ToggleBitmapLayer* toggle_bitmap_layer)
 {
-    /* Even simpler than toggle_bitmap_layer_destroy, perhaps? */
-    return (Layer*) toggle_bitmap_layer;
+    return bitmap_layer_get_layer(toggle_bitmap_layer->base_layer);
+}
+
+BitmapLayer* toggle_bitmap_layer_get_bitmap_layer(const ToggleBitmapLayer* toggle_bitmap_layer)
+{
+    return toggle_bitmap_layer->base_layer;
 }
 
 void toggle_bitmap_layer_toggle_state(ToggleBitmapLayer* toggle_bitmap_layer)
@@ -87,33 +76,35 @@ void toggle_bitmap_layer_set_state(ToggleBitmapLayer* toggle_bitmap_layer, Toggl
         return;
     }
 
-    priv(toggle_bitmap_layer)->state = state;
-    layer_mark_dirty(toggle_bitmap_layer_get_layer(toggle_bitmap_layer));
+    toggle_bitmap_layer->state = state;
+    toggle_bitmap_layer_reset_bitmap_(toggle_bitmap_layer);
 }
 
 ToggleBitmapLayerState toggle_bitmap_layer_get_state(const ToggleBitmapLayer* toggle_bitmap_layer)
 {
-    return priv_c(toggle_bitmap_layer)->state;
+    return toggle_bitmap_layer->state;
 }
 
 void toggle_bitmap_layer_set_on_bitmap(ToggleBitmapLayer* toggle_bitmap_layer, const GBitmap* bitmap)
 {
-    priv(toggle_bitmap_layer)->on_bitmap = bitmap;
-    layer_mark_dirty(toggle_bitmap_layer_get_layer(toggle_bitmap_layer));
+    toggle_bitmap_layer->on_bitmap = bitmap;
+    if(toggle_bitmap_layer_get_state(toggle_bitmap_layer) == TOGGLE_BITMAP_LAYER_STATE_ON)
+        toggle_bitmap_layer_reset_bitmap_(toggle_bitmap_layer);
 }
 
 const GBitmap* toggle_bitmap_layer_get_on_bitmap(const ToggleBitmapLayer* toggle_bitmap_layer)
 {
-    return priv_c(toggle_bitmap_layer)->on_bitmap;
+    return toggle_bitmap_layer->on_bitmap;
 }
 
 void toggle_bitmap_layer_set_off_bitmap(ToggleBitmapLayer* toggle_bitmap_layer, const GBitmap* bitmap)
 {
-    priv(toggle_bitmap_layer)->off_bitmap = bitmap;
-    layer_mark_dirty(toggle_bitmap_layer_get_layer(toggle_bitmap_layer));
+    toggle_bitmap_layer->off_bitmap = bitmap;
+    if(toggle_bitmap_layer_get_state(toggle_bitmap_layer) == TOGGLE_BITMAP_LAYER_STATE_OFF)
+        toggle_bitmap_layer_reset_bitmap_(toggle_bitmap_layer);
 }
 
 const GBitmap* toggle_bitmap_layer_get_off_bitmap(const ToggleBitmapLayer* toggle_bitmap_layer)
 {
-    return priv_c(toggle_bitmap_layer)->off_bitmap;
+    return toggle_bitmap_layer->off_bitmap;
 }
