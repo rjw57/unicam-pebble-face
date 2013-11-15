@@ -10,6 +10,17 @@
   },
   "appKeys": { },
   "resources": {
-    "media": []
+    "media": [
+      {
+        "type": "png",
+        "name": "FILLED_DOT",
+        "file": "filled-dot.png"
+      },
+      {
+        "type": "png",
+        "name": "EMPTY_DOT",
+        "file": "empty-dot.png"
+      }
+    ]
   }
 }
