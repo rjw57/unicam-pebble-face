@@ -82,16 +82,16 @@ static void window_load(Window *window) {
 
     const int text_height = 24;
 
-    term_text_layer = create_label((GRect) { .origin = { 0, bounds.size.h-2*text_height }, .size = { bounds.size.w, text_height } });
+    term_text_layer = create_label((GRect) { .origin = { 0, bounds.size.h-2*text_height-2 }, .size = { bounds.size.w, text_height } });
     text_layer_set_text(term_text_layer, placeholder_text);
 
-    date_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1, bounds.size.h-text_height }, .size = { bounds.size.w>>1, text_height } });
+    date_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1, bounds.size.h-text_height-2 }, .size = { bounds.size.w>>1, text_height } });
     text_layer_set_text(date_text_layer, placeholder_text);
 
-    day_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1, 96 }, .size = { bounds.size.w>>1, text_height } });
+    day_text_layer = create_label((GRect) { .origin = { bounds.size.w>>1,  2 + 21*2+2 + 2 + 21 + 2 + 21 - 3}, .size = { bounds.size.w>>1, text_height } });
     text_layer_set_text(day_text_layer, placeholder_text);
 
-    week_text_layer = create_label((GRect) { .origin = { 0, bounds.size.h-text_height }, .size = { bounds.size.w>>1, text_height } });
+    week_text_layer = create_label((GRect) { .origin = { 0, bounds.size.h-text_height-2 }, .size = { bounds.size.w>>1, text_height } });
     text_layer_set_text(week_text_layer, placeholder_text);
 
     hours_led_bar_layer = create_led_bar((GRect) { .origin = { 2, 2 }, .size = { bounds.size.w-4, 21*2 + 2 } });
