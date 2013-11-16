@@ -49,7 +49,9 @@ static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
     text_layer_set_text(term_text_layer, uni_term_name_to_string(term_date.name));
 
     // Time itself
-    led_bar_layer_set_value(hours_led_bar_layer, time_copy.tm_hour % 12);
+    int hour = time_copy.tm_hour % 12;
+    if(hour == 0) { hour = 12; }
+    led_bar_layer_set_value(hours_led_bar_layer, hour);
     led_bar_layer_set_value(minutes_tens_led_bar_layer, time_copy.tm_min / 10);
     led_bar_layer_set_value(minutes_units_led_bar_layer, time_copy.tm_min % 10);
 }
