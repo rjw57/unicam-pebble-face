@@ -33,7 +33,7 @@ static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
 
     // Date: e.g. 3 Nov
     strftime(tmp_str, sizeof(tmp_str), "%h", &time_copy);
-    snprintf(date_text, sizeof(date_text), "%li %s", time_copy.tm_mday, tmp_str);
+    snprintf(date_text, sizeof(date_text), "%i %s", time_copy.tm_mday, tmp_str);
     text_layer_set_text(date_text_layer, date_text);
 
     // Week: e.g. Wk 2
